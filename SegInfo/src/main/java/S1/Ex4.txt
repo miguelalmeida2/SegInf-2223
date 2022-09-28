@@ -1,0 +1,20 @@
+4
+4.1
+    Em assinaturas digitais, em que a validação (verificação) de um certificado é feita por qualquer entidade com a chave pública, que não está
+    no certificado. O certificado é unicamente assinado com a chave privada.
+
+4.2
+    O objetivo do certificado X509 é fornecer uma autenticidade forte em que uma chave privada é guardada em segurança para garantir uma
+    politica de não-repúdio de uma assinatura pela parte de uma entidade verificadora. O esquema MAC usa uma autenticidade simétrica,
+    tendo ambas as assinaturas e verificações realizadas com a mesma chave, o que significa que qualquer entidade que consiga verificar
+    uma assinatura também consegue-a reproduzir, isto não obedece à politica de não-repúdio, tornando possivel a disputa pela autoria de uma assinatura.
+    Com uma assinatura digital, usada no certificado X509, é usado um esquema assimétrico, onde a assinatura é realizado com uma chave privada,
+    guardada em segurança e não accessivel a entidades verificadoras, e verificada por estas usando uma chave pública, sendo que 2 chaves distintas
+    e independentes de si mesmas previnem a replicação da assinatura.
+
+4.3
+    Os ficheiros .cer apenas contêm a chave pública (normalmente usado como trocas entre parceiros de integração, como empresas parceiras, ou entidades
+    com o propósito de partilhar o acesso à verificação de certas assinaturas), é usada para verificar tokens ou pedidos de autentificação de clientes
+    como por exemplo no handshake inicial SSL de um servidor com um cliente HTTP.
+    Os ficheiros .pfx contém ambas as chaves pública e privada para um certo certificado, não é partilhado normalmente fora de uma organização, é usado
+    para a realização de assinaturas ou autentificação de sistemas dentro da mesma organização.

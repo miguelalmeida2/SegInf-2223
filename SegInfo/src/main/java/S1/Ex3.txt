@@ -1,0 +1,17 @@
+3.
+3.1
+    Para se iniciar o procedimento de assinatura é primeiramente criada uma instância da classe Signature (com nome "signature" por exemplo),
+    usando o método "getInstance()" e passando como parâmetro o algoritmo de assinatura escolhido.
+    Após esta é realizado um "signature.initSign()" com a respetiva chave privada, para se realizar a inicialização do objeto. (Tornando,
+    segundo o modelo do JCA para objetos Signature, a instância inicializada.)
+    Finalmente é passado o byte array de mensagem à instância criada e inicializada previamente, usando o método "signature.update()", e finalizando o processo
+    de assinatura é usado o método "sinature.sign()" para retornar o array de bytes resultantes da operação de assinatura à mensagem.
+    O método "sign()" não só retorna um byte array como resultado, como também dá "reset" ao objeto instanciado da classe Signature de volta ao estado
+    em que se encontrava quando foi previamente inicializado para assinatura, ou seja quando se deu a chamada ao método "initSign()", isto dá-se como propósito de
+    realizar novas assinaturas com a mesma chave privada a mensagens futuras, caso o usuário o pretenda.
+
+3.2
+    Este ataque é definido pelo ataque de pré-imagem, onde o atacante através de visualizar o input consegue encontrar o output com o mesmo hash.
+    As assinaturas geradas através do objeto instanciado com este hash não estariam em perigo de segurança pois a chave privada ainda
+    permanece desconhecida ao atacante, não permitindo a replicação da assinatura em causa, porém, a validação desta é agora possivel pelo atacante, quando este não tem a chave pública.
+    //Duvida sobre as ultimas afirmações
