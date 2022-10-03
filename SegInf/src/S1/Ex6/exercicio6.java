@@ -3,7 +3,9 @@ package S1.Ex6;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -15,28 +17,61 @@ import java.util.Scanner;
 
 public class exercicio6 {
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
         String fun = args[0];
         String fileIn = args[1];
         String cert = args[2];
 
         System.out.println(fun + " " + fileIn + " " + cert);
 
-        
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
+
+        keyPairGenGa.initialize(2048);
+        KeyPair pair = keyPairGenGa.generateKeyPair();
+        PrivateKey privKeyKd = pair.getPrivate();
+        PublicKey publicKeyKe = pair.getPublic();
+
+
+        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
+        FileInputStream
+
+        SecretKey keyK = keyGen.generateKey();
+
+        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        Cipher cipherKey = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+        CipherInputStream cis = new CipherInputStream(fis,cipherMen);
+        CipherInputStream cis1 = new CipherInputStream(keyK,publicKeyKe);
+
+        // Associa a chave key a cifra
+        cipherMen.init(Cipher.ENCRYPT_MODE, keyK);
+
+        cipherKey.init(Cipher.ENCRYPT_MODE,publicKeyKe);
+
+        byte[] bytes = cm(fis, cipherMen);
+
+        // Mostra os bytes em hexadec
+        prettyPrint(bytes);
+    }
+
+    private static byte[] cm(FileInputStream fis, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
+        // Cifra mensagem com chave key
+        byte[] bytes = cipher.doFinal(fis.readAllBytes());
+        return bytes;
+    }
+
+    private static ck(SecretKey keyK, PublicKey keyE){
 
 
     }
 
-
-    public static String readFile(String path, Charset encoding) {
-        byte[] encoded = new byte[0];
-        try {
-            encoded = Files.readAllBytes(Paths.get(path));
-        } catch (IOException e) {
-            e.printStackTrace();
+    // Imprime array de bytes em hexadecimal
+    private static void prettyPrint(byte[] tag) {
+        for (byte b: tag) {
+            System.out.printf("%02x", b);
         }
-        return new String(encoded, encoding);
+        System.out.println();
     }
 
 
