@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -32,38 +33,48 @@ public class exercicio6 {
         PrivateKey privKeyKd = pair.getPrivate();
         PublicKey publicKeyKe = pair.getPublic();
 
-
         FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
-        FileInputStream
 
         SecretKey keyK = keyGen.generateKey();
 
         Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        Cipher cipherKey = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipherKey = Cipher.getInstance("RSA");
+
 
         CipherInputStream cis = new CipherInputStream(fis,cipherMen);
-        CipherInputStream cis1 = new CipherInputStream(keyK,publicKeyKe);
 
         // Associa a chave key a cifra
         cipherMen.init(Cipher.ENCRYPT_MODE, keyK);
 
-        cipherKey.init(Cipher.ENCRYPT_MODE,publicKeyKe);
+        // Associa a chave publicKey a chaveK
+        cipherKey.init(Cipher.WRAP_MODE,publicKeyKe);
 
         byte[] bytes = cm(fis, cipherMen);
 
+        byte[] bytesKey = ck(keyK, cipherKey);
+
         // Mostra os bytes em hexadec
         prettyPrint(bytes);
+        prettyPrint(bytesKey);
+
+        cipherKey.init(Cipher.UNWRAP_MODE,privKeyKd);
+        SecretKey secretKey = (SecretKey) cipherKey.unwrap(bytesKey,"RSA",Cipher.SECRET_KEY);
+
+
+        cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
+        byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
+        System.out.println(msg);
+    }
+
+    private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException {
+        byte[] bytesKey = cipherKey.wrap(keyK);
+        return bytesKey;
     }
 
     private static byte[] cm(FileInputStream fis, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
         // Cifra mensagem com chave key
         byte[] bytes = cipher.doFinal(fis.readAllBytes());
         return bytes;
-    }
-
-    private static ck(SecretKey keyK, PublicKey keyE){
-
-
     }
 
     // Imprime array de bytes em hexadecimal
