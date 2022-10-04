@@ -3,41 +3,45 @@ package S1.Ex6;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.*;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.Scanner;
 
 
 public class exercicio6 {
 
     public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
-        String fun = args[0];
-        String fileIn = args[1];
-        String cert = args[2];
+        //String fun = args[0];
+        //String fileIn = args[1];
+        //String cert = args[2];
 
-        System.out.println(fun + " " + fileIn + " " + cert);
+        //System.out.println(fun + " " + fileIn + " " + cert);
 
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
+
+        final String AES_CIPHER_ALGORITHM
+                = "AES/CBC/PKCS5PADDING";
 
         keyPairGenGa.initialize(2048);
         KeyPair pair = keyPairGenGa.generateKeyPair();
         PrivateKey privKeyKd = pair.getPrivate();
         PublicKey publicKeyKe = pair.getPublic();
 
-        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
+        //Para MAC:        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
+        FileInputStream fis = new FileInputStream("SegInfo/src/S1/Ex6/ficheiro.txt");
 
         SecretKey keyK = keyGen.generateKey();
 
-        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        //Chave Gerada
+        //prettyPrint(keyK.getEncoded());
+
+        System.out.println("Message Bytes:");
+        prettyPrint(Base64.encodeBase64(fis.readAllBytes()));
+        System.out.println("\n");
+
+        Cipher cipherMen = Cipher.getInstance("AES");
         Cipher cipherKey = Cipher.getInstance("RSA");
 
 
@@ -54,16 +58,23 @@ public class exercicio6 {
         byte[] bytesKey = ck(keyK, cipherKey);
 
         // Mostra os bytes em hexadec
-        prettyPrint(bytes);
-        prettyPrint(bytesKey);
+        //prettyPrint(bytes);
+        //prettyPrint(bytesKey);
 
         cipherKey.init(Cipher.UNWRAP_MODE,privKeyKd);
-        SecretKey secretKey = (SecretKey) cipherKey.unwrap(bytesKey,"RSA",Cipher.SECRET_KEY);
 
+        //Chave secreta é estraida, é assegurado que é igual à chave gerada
+        SecretKey secretKey = (SecretKey) cipherKey.unwrap(bytesKey,"AES",Cipher.SECRET_KEY);
+        assert secretKey == keyK : "Extracted Key doesn't match Generated Key.  keyK != SecretKey";
 
         cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
-        byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
+
+        //byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
+
+        byte[] msg = cipherMen.doFinal(bytes);
+        System.out.println("Message Bytes After Decoding");
         System.out.println(msg);
+        System.out.println();
     }
 
     private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException {
@@ -73,7 +84,15 @@ public class exercicio6 {
 
     private static byte[] cm(FileInputStream fis, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
         // Cifra mensagem com chave key
-        byte[] bytes = cipher.doFinal(fis.readAllBytes());
+        //byte [] readBytes = Base64.encodeBase64(fis.readAllBytes());
+
+        byte[] buffer = new byte[64];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            cipher.update(buffer, 0, bytesRead);
+        }
+        byte[] bytes = cipher.doFinal();
+
         return bytes;
     }
 
