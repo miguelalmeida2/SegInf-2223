@@ -7,16 +7,42 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 
 
 public class exercicio6 {
 
-    public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, CertificateException, KeyStoreException, UnrecoverableKeyException {
         //String fun = args[0];
         //String fileIn = args[1];
         //String cert = args[2];
 
         //System.out.println(fun + " " + fileIn + " " + cert);
+
+
+        // Assume que ficheiro cert.cer está na diretoria de execução.
+        FileInputStream in = new FileInputStream("Alice_1.cer");
+
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        ks.load(
+                new FileInputStream("Alice_1.pfx"),
+                "changeit".toCharArray()
+        );
+
+        // Gera objeto para certificados X.509.
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        // Gera o certificado a partir do ficheiro.
+        X509Certificate certificate = (X509Certificate) cf.generateCertificate(in);
+        // Obtém a chave pública do certificado.
+        Enumeration<String> entries = ks.aliases();
+        String alias = entries.nextElement();
+        X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
+
+        PublicKey publicKeyKe = certificate.getPublicKey();
+        PrivateKey privKeyKd = (PrivateKey) ks.getKey(alias, "changeit".toCharArray());
 
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
@@ -24,10 +50,10 @@ public class exercicio6 {
         final String AES_CIPHER_ALGORITHM
                 = "AES/CBC/PKCS5PADDING";
 
-        keyPairGenGa.initialize(2048);
-        KeyPair pair = keyPairGenGa.generateKeyPair();
-        PrivateKey privKeyKd = pair.getPrivate();
-        PublicKey publicKeyKe = pair.getPublic();
+        //keyPairGenGa.initialize(2048);
+        //KeyPair pair = keyPairGenGa.generateKeyPair();
+        //PrivateKey privKeyKd = pair.getPrivate();
+        //PublicKey publicKeyKe = pair.getPublic();
 
         //Para MAC:        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
         FileInputStream fis = new FileInputStream("SegInfo/src/S1/Ex6/ficheiro.txt");
