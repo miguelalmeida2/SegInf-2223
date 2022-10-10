@@ -24,11 +24,13 @@ public class exercicio6 {
 
 
         // Assume que ficheiro cert.cer está na diretoria de execução.
-        FileInputStream in = new FileInputStream("Alice_1.cer");
+        //FileInputStream in = new FileInputStream("Alice_1.cer");
+        FileInputStream in = new FileInputStream("src/S1/Ex6/Alice_1.cer");
 
         KeyStore ks = KeyStore.getInstance("PKCS12");
         ks.load(
-                new FileInputStream("Alice_1.pfx"),
+                new FileInputStream("src/S1/Ex6/Alice_1.pfx"),
+                //new FileInputStream("Alice_1.pfx"),
                 "changeit".toCharArray()
         );
 
@@ -55,8 +57,9 @@ public class exercicio6 {
         //PrivateKey privKeyKd = pair.getPrivate();
         //PublicKey publicKeyKe = pair.getPublic();
 
-        //Para MAC:        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
-        FileInputStream fis = new FileInputStream("SegInfo/src/S1/Ex6/ficheiro.txt");
+        //Para MAC:
+        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
+        //FileInputStream fis = new FileInputStream("SegInfo/src/S1/Ex6/ficheiro.txt");
 
         SecretKey keyK = keyGen.generateKey();
 
@@ -91,13 +94,14 @@ public class exercicio6 {
 
         //Chave secreta é estraida, é assegurado que é igual à chave gerada
         SecretKey secretKey = (SecretKey) cipherKey.unwrap(bytesKey,"AES",Cipher.SECRET_KEY);
+
         assert secretKey == keyK : "Extracted Key doesn't match Generated Key.  keyK != SecretKey";
 
         cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
 
-        //byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
+        byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
+        //byte[] msg = cipherMen.doFinal(bytes);
 
-        byte[] msg = cipherMen.doFinal(bytes);
         System.out.println("Message Bytes After Decoding");
         System.out.println(msg);
         System.out.println();
@@ -116,6 +120,7 @@ public class exercicio6 {
         int bytesRead;
         while ((bytesRead = fis.read(buffer)) != -1) {
             cipher.update(buffer, 0, bytesRead);
+            ciphe
         }
         byte[] bytes = cipher.doFinal();
 
