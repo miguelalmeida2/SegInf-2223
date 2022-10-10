@@ -24,13 +24,14 @@ public class exercicio6 {
 
 
         // Assume que ficheiro cert.cer está na diretoria de execução.
-        FileInputStream in = new FileInputStream("Alice_1.cer");
+        FileInputStream in = new FileInputStream("src/S1/Ex6/Alice_1.cer");
 
         KeyStore ks = KeyStore.getInstance("PKCS12");
         ks.load(
-                new FileInputStream("Alice_1.pfx"),
+                new FileInputStream("src/S1/Ex6/Alice_1.pfx"),
                 "changeit".toCharArray()
         );
+
 
         // Gera objeto para certificados X.509.
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -47,16 +48,23 @@ public class exercicio6 {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
 
+
+
         final String AES_CIPHER_ALGORITHM
                 = "AES/CBC/PKCS5PADDING";
 
-        //keyPairGenGa.initialize(2048);
-        //KeyPair pair = keyPairGenGa.generateKeyPair();
-        //PrivateKey privKeyKd = pair.getPrivate();
-        //PublicKey publicKeyKe = pair.getPublic();
+        /*
+        keyPairGenGa.initialize(2048);
+        KeyPair pair = keyPairGenGa.generateKeyPair();
+        PrivateKey privKeyKd = pair.getPrivate();
+        PublicKey publicKeyKe = pair.getPublic();
+
+         */
 
         //Para MAC:        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
-        FileInputStream fis = new FileInputStream("SegInfo/src/S1/Ex6/ficheiro.txt");
+        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
+        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/output.txt");
+
 
         SecretKey keyK = keyGen.generateKey();
 
@@ -79,7 +87,10 @@ public class exercicio6 {
         // Associa a chave publicKey a chaveK
         cipherKey.init(Cipher.WRAP_MODE,publicKeyKe);
 
-        byte[] bytes = cm(fis, cipherMen);
+        cm(fis, cipherMen, outputStream);
+
+
+
 
         byte[] bytesKey = ck(keyK, cipherKey);
 
@@ -97,30 +108,42 @@ public class exercicio6 {
 
         //byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
 
-        byte[] msg = cipherMen.doFinal(bytes);
+        FileInputStream fos = new FileInputStream("src/S1/Ex6/output.txt");
+        FileOutputStream decodedMessage = new FileOutputStream("src/S1/Ex6/decodedMessage.txt");
+
+        cm(fos,cipherMen,decodedMessage);
+
         System.out.println("Message Bytes After Decoding");
-        System.out.println(msg);
-        System.out.println();
+        //prettyPrint(decodedMessage);
     }
 
     private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException {
         byte[] bytesKey = cipherKey.wrap(keyK);
         return bytesKey;
     }
-
-    private static byte[] cm(FileInputStream fis, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
+    //Meter nome do ficheiro em vez de input e output stream
+    private static void cm(FileInputStream fis, Cipher cipher, FileOutputStream fos) throws IllegalBlockSizeException, BadPaddingException, IOException {
         // Cifra mensagem com chave key
-        //byte [] readBytes = Base64.encodeBase64(fis.readAllBytes());
+        //byte [] readBytes = Base64.encodeBase64(fis.readAllBytes())
+
 
         byte[] buffer = new byte[64];
         int bytesRead;
         while ((bytesRead = fis.read(buffer)) != -1) {
-            cipher.update(buffer, 0, bytesRead);
+            byte[] output = cipher.update(buffer, 0, bytesRead);
+            if (output != null) {
+                fos.write(output);
+            }
         }
-        byte[] bytes = cipher.doFinal();
-
-        return bytes;
+        byte[] outputBytes = cipher.doFinal();
+        if (outputBytes != null) {
+            fos.write(outputBytes);
+        }
+        fis.close();
+        fos.close();
     }
+
+
 
     // Imprime array de bytes em hexadecimal
     private static void prettyPrint(byte[] tag) {
