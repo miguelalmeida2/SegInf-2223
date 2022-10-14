@@ -1,6 +1,6 @@
 package S1.Ex6;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.*;
 
 import javax.crypto.*;
 import java.io.FileInputStream;
@@ -46,7 +46,7 @@ public class exercicio6 {
         PrivateKey privKeyKd = (PrivateKey) ks.getKey(alias, "changeit".toCharArray());
 
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
+        //KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
 
 
 
@@ -61,25 +61,15 @@ public class exercicio6 {
 
          */
 
-        //Para MAC:        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
-        FileInputStream fis = new FileInputStream("src/S1/Ex6/ficheiro.txt");
-        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/output.txt");
+        /**
+         * -------------------------------- Encryption Side ------------------------------------------
+         */
 
-
-        SecretKey keyK = keyGen.generateKey();
-
-        //Chave Gerada
-        //prettyPrint(keyK.getEncoded());
-
-        System.out.println("Message Bytes:");
-        prettyPrint(Base64.encodeBase64(fis.readAllBytes()));
-        System.out.println("\n");
 
         Cipher cipherMen = Cipher.getInstance("AES");
         Cipher cipherKey = Cipher.getInstance("RSA");
 
-
-        CipherInputStream cis = new CipherInputStream(fis,cipherMen);
+        SecretKey keyK = keyGen.generateKey();
 
         // Associa a chave key a cifra
         cipherMen.init(Cipher.ENCRYPT_MODE, keyK);
@@ -87,16 +77,27 @@ public class exercicio6 {
         // Associa a chave publicKey a chaveK
         cipherKey.init(Cipher.WRAP_MODE,publicKeyKe);
 
-        cm(fis, cipherMen, outputStream);
+        String fileName = "ficheiro.txt";
+        FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
+        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.cif");
+        CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
+        Base64OutputStream enconder =  new Base64OutputStream(outputStream);
 
 
 
+        System.out.println("Message Bytes:");
+        prettyPrint(Base64.encodeBase64(fis.readAllBytes()));
+        System.out.println("\n");
+
+
+        cmEnconding(enconder, cipherMen,cipherStream);
+
+
+        /**
+         * -------------------------------- Decryption Side ------------------------------------------
+         */
 
         byte[] bytesKey = ck(keyK, cipherKey);
-
-        // Mostra os bytes em hexadec
-        //prettyPrint(bytes);
-        //prettyPrint(bytesKey);
 
         cipherKey.init(Cipher.UNWRAP_MODE,privKeyKd);
 
@@ -106,46 +107,89 @@ public class exercicio6 {
 
         cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
 
-        //byte[] msg = Base64.decodeBase64(cipherMen.doFinal(bytes));
 
-        FileInputStream fos = new FileInputStream("src/S1/Ex6/output.txt");
-        FileOutputStream decodedMessage = new FileOutputStream("src/S1/Ex6/decodedMessage.txt");
+        FileInputStream cis = new FileInputStream("src/S1/Ex6/encrypted_ficheiro.cif");
+        FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_"+fileName);
+        Base64InputStream decoder = new Base64InputStream(cis);
+        CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
 
-        cm(fos,cipherMen,decodedMessage);
+        cmDecoding(decoder,cipherMen, cipherOutStream);
 
         System.out.println("Message Bytes After Decoding");
-        //prettyPrint(decodedMessage);
+        //prettyPrint(decoder.readAllBytes());
     }
 
+    /**
+     * @param keyK
+     * @param cipherKey
+     * @return
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     */
     private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException {
-        byte[] bytesKey = cipherKey.wrap(keyK);
-        return bytesKey;
+        return cipherKey.wrap(keyK);
     }
-    //Meter nome do ficheiro em vez de input e output stream
-    private static void cm(FileInputStream fis, Cipher cipher, FileOutputStream fos) throws IllegalBlockSizeException, BadPaddingException, IOException {
-        // Cifra mensagem com chave key
-        //byte [] readBytes = Base64.encodeBase64(fis.readAllBytes())
 
+
+    /**
+     * @param enconder
+     * @param cipher
+     * @param cipherStream
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws IOException
+     */
+    private static void cmEnconding(Base64OutputStream enconder,Cipher cipher, CipherInputStream cipherStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
 
         byte[] buffer = new byte[64];
         int bytesRead;
-        while ((bytesRead = fis.read(buffer)) != -1) {
+        while ((bytesRead = cipherStream.read(buffer,0,64)) != -1) {
             byte[] output = cipher.update(buffer, 0, bytesRead);
             if (output != null) {
-                fos.write(output);
+                enconder.write(output);
+            }
+        }
+
+        byte[] outputBytes = cipher.doFinal();
+        if (outputBytes != null) {
+            enconder.write(outputBytes);
+        }
+        enconder.close();
+        cipherStream.close();
+    }
+
+    /**
+     * @param cipher
+     * @param decoder
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws IOException
+     */
+    private static void cmDecoding(Base64InputStream decoder,Cipher cipher, CipherOutputStream cipherOutStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
+        byte[] buffer = new byte[64];
+        int bytesRead;
+        while ((bytesRead = decoder.read(buffer,0,64)) != -1) {
+           byte[] output = cipher.update(buffer, 0, bytesRead);
+
+            if (output != null) {
+                cipherOutStream.write(output);
             }
         }
         byte[] outputBytes = cipher.doFinal();
         if (outputBytes != null) {
-            fos.write(outputBytes);
+            cipherOutStream.write(outputBytes);
         }
-        fis.close();
-        fos.close();
+
+
+        decoder.close();
+        cipherOutStream.close();
     }
 
 
-
-    // Imprime array de bytes em hexadecimal
+    /**
+     *
+     * @param tag
+     */
     private static void prettyPrint(byte[] tag) {
         for (byte b: tag) {
             System.out.printf("%02x", b);
@@ -155,9 +199,12 @@ public class exercicio6 {
 
 
     /**
+     * /**
      * Generates the key for the AES algorithm
      *
      * @return SecretKey object to encrypt file with
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
      */
     private static SecretKey generateKey() throws NoSuchAlgorithmException, IOException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
