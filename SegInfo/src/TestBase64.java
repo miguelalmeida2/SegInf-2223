@@ -11,7 +11,6 @@ public class TestBase64 {
 
     public static void main(String[] args) throws IOException {
         String filename = "ficheiro.txt";
-        File file = new File(filename);
 
         /**
          * Source
@@ -29,6 +28,10 @@ public class TestBase64 {
          * Encoding in Base64 to a file
          */
         base64OutputStream.write(fis.readAllBytes());
+
+        base64OutputStream.close();
+
+
         // Another way to encode to base64 without a Base64Stream -> byte[] encoded = Base64.encodeBase64(fis.readAllBytes());
 
         /**
@@ -40,15 +43,10 @@ public class TestBase64 {
         FileOutputStream output = new FileOutputStream("output.txt");
         Base64OutputStream outputStream = new Base64OutputStream(output);
 
-        int readBytes;
-        byte[] buffer = new byte[64];
-        while((readBytes = in.read(buffer,0,64)) != -1){
-            outputStream.write(readBytes);
-        }
-        /*
-        String result = new String(baseIn.readAllBytes(), StandardCharsets.UTF_8);
-        System.out.println(result);
+        byte [] input = in.readAllBytes();
+        outputStream.write(Base64.decodeBase64(input));
 
+        /*
         System.out.println(Arrays.toString(Base64.decodeBase64(in.readAllBytes())));
 
          */

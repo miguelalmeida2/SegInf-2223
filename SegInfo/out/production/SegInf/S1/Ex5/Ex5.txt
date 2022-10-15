@@ -1,0 +1,21 @@
+Teste a sua aplicação usando certificados (ficheiros .cer) presentes no arquivo certificates-and-keys.zip, em anexo a este enunciado. 
+Compare o resultado com os valores de hash apresentados pelo visualizador de certificados do sistema operativo.
+
+certificates-and-keys.zip:
+	-> CA1-int (sha256)
+		fingerprint =
+		thumbprint = 1b8d5ccf68b3bc642ae22bef68b94284acab66c3
+		openssl =
+	-> CA2-int (sha256)
+		fingerprint =
+		thumbprint = 7cfaa25f0b098a6755f75227244fa7d36d7ce69d
+		openssl =
+	
+	-> testeEx5 (sha-1)
+		hash = 38497ab6c51c1060c8ce8e0f3dfb693527859e7a
+
+	-> testeEx5 (sha-256)
+		hash = 7869a712b741f301ede562ba261d9088be7b7d9b80f8351ae6e9e17268f2b58c
+
+	-> testeEx5 (md5)
+		hash = 0fe696f67510c51ecbc57771ea778e86

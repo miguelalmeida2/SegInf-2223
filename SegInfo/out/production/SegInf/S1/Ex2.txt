@@ -1,0 +1,15 @@
+
+
+2. O RFC 4880, “OpenPGP Message Format”, especifica a cifra de mensagens (denominados objectos) como
+uma combinação entre esquemas assimétricos e simétricos:
+«[...] first the object is encrypted using a symmetric encryption algorithm. 
+Each symmetric key is used only once, for a single object. 
+A new “session key” is generated as a random number for each object (sometimes referred to as a session). 
+Since it is used only once, the session key is bound to the message and transmitted with it. 
+To protect the key, it is encrypted with the receiver’s public key. [...]»
+Justifique a utilização desta abordagem com dois tipos de chave e explique sucintamente o processo de decifra de uma mensagem (object).
+
+R: 
+É usado esquema simétrico para cifrar a informação contida na mensagem e o esquema assimétrico
+para cifrar a chave usada na cifra da mensagem para posteriormente ser enviada por um meio de comunicação. Desta forma o custo computacional é significativamente maior.
+O processo de decifra é composto pela decifra da chave recorrendo à chave privada da pessoa que recebeu, com isso é obtida a chave simétrica usada na mensagem e feita a decifra da mesma mensagem.

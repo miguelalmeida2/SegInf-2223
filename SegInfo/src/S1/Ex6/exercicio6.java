@@ -81,16 +81,23 @@ public class exercicio6 {
         FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
         FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.cif");
         CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
-        Base64OutputStream enconder =  new Base64OutputStream(outputStream);
+        Base64OutputStream encoder =  new Base64OutputStream(outputStream);
 
 
-
+        /*
         System.out.println("Message Bytes:");
         prettyPrint(Base64.encodeBase64(fis.readAllBytes()));
         System.out.println("\n");
 
+         */
+        /*
+        byte[] buffer = new byte[64];
+        int nBytes;
+        while ( (nBytes = cipherStream.read(buffer, 0, 64)) != -1 )
+            encoder.write(buffer, 0, nBytes);
 
-        cmEnconding(enconder, cipherMen,cipherStream);
+         */
+        cmEnconding(encoder, cipherMen,cipherStream);
 
 
         /**
@@ -113,6 +120,10 @@ public class exercicio6 {
         Base64InputStream decoder = new Base64InputStream(cis);
         CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
 
+
+
+
+
         cmDecoding(decoder,cipherMen, cipherOutStream);
 
         System.out.println("Message Bytes After Decoding");
@@ -132,29 +143,32 @@ public class exercicio6 {
 
 
     /**
-     * @param enconder
+     * @param encoder
      * @param cipher
      * @param cipherStream
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      * @throws IOException
      */
-    private static void cmEnconding(Base64OutputStream enconder,Cipher cipher, CipherInputStream cipherStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
+    private static void cmEnconding(Base64OutputStream encoder,Cipher cipher, CipherInputStream cipherStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
 
         byte[] buffer = new byte[64];
         int bytesRead;
+
         while ((bytesRead = cipherStream.read(buffer,0,64)) != -1) {
             byte[] output = cipher.update(buffer, 0, bytesRead);
             if (output != null) {
-                enconder.write(output);
+                encoder.write(output);
             }
         }
 
         byte[] outputBytes = cipher.doFinal();
         if (outputBytes != null) {
-            enconder.write(outputBytes);
+            encoder.write(outputBytes);
         }
-        enconder.close();
+
+
+        encoder.close();
         cipherStream.close();
     }
 
@@ -168,6 +182,9 @@ public class exercicio6 {
     private static void cmDecoding(Base64InputStream decoder,Cipher cipher, CipherOutputStream cipherOutStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
         byte[] buffer = new byte[64];
         int bytesRead;
+
+
+
         while ((bytesRead = decoder.read(buffer,0,64)) != -1) {
            byte[] output = cipher.update(buffer, 0, bytesRead);
 
@@ -176,10 +193,10 @@ public class exercicio6 {
             }
         }
         byte[] outputBytes = cipher.doFinal();
+        cipherOutStream.write(new String(outputBytes).getBytes());
         if (outputBytes != null) {
-            cipherOutStream.write(outputBytes);
+            cipherOutStream.write(new String(outputBytes).getBytes());
         }
-
 
         decoder.close();
         cipherOutStream.close();
