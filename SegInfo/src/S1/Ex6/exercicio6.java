@@ -4,23 +4,38 @@ import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import javax.crypto.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.Objects;
+import java.util.Scanner;
 
 
 public class exercicio6 {
 
     public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, CertificateException, KeyStoreException, UnrecoverableKeyException {
-        //String fun = args[0];
-        //String fileIn = args[1];
-        //String cert = args[2];
+        if(args.length==0) {
+            Scanner sc= new Scanner(System.in);
+            System.out.println(" Welcome to the SegInf Cypher & Decipher Program.\n");
+            System.out.println("    Please select the desired mode: ");
+            System.out.println("     -enc  [Encodes a file, ciphering it's content]");
+            System.out.println("     -dec  [Decodes a file, deciphering it's content]");
+
+            String userResponse = sc.nextLine();
+        }
+
+        String mode = args[0];
+        switch(mode){
+            case "-enc": decMode(args);
+            case "-dec": encMode(args);
+            default:
+                //throw new IllegalArgumentException("Incorrect Mode, please introduce either -enc or -dec .");
+                 break;
+        }
+
 
         //System.out.println(fun + " " + fileIn + " " + cert);
 
@@ -52,23 +67,13 @@ public class exercicio6 {
 
 
 
-        final String AES_CIPHER_ALGORITHM
-                = "AES/CBC/PKCS5PADDING";
-
-        /*
-        keyPairGenGa.initialize(2048);
-        KeyPair pair = keyPairGenGa.generateKeyPair();
-        PrivateKey privKeyKd = pair.getPrivate();
-        PublicKey publicKeyKe = pair.getPublic();
-
-         */
 
         /**
          * -------------------------------- Encryption Side ------------------------------------------
          */
 
 
-        Cipher cipherMen = Cipher.getInstance("AES");
+        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
         Cipher cipherKey = Cipher.getInstance("RSA");
 
         SecretKey keyK = keyGen.generateKey();
@@ -82,7 +87,7 @@ public class exercicio6 {
         String fileName = "ficheiro.txt";
         File file = new File("src/S1/Ex6/"+fileName);
         FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
-        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.cif");
+        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.txt");
         //CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
         Base64OutputStream encoder =  new Base64OutputStream(outputStream);
 
@@ -93,16 +98,7 @@ public class exercicio6 {
         System.out.println("\n");
 
          */
-
-
-        /*
-        byte[] buffer = new byte[64];
-        int nBytes;
-        while ( (nBytes = cipherStream.read(buffer, 0, 64)) != -1 )
-            encoder.write(buffer, 0, nBytes);
-
-         */
-        cmEnconding(encoder, cipherMen,fis,file);
+        cmEnconding(encoder, cipherMen,fis);
 
 
         /**
@@ -120,16 +116,51 @@ public class exercicio6 {
         cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
 
 
-        FileInputStream cis = new FileInputStream("src/S1/Ex6/encrypted_ficheiro.cif");
+        FileInputStream cis = new FileInputStream("src/S1/Ex6/encrypted_ficheiro.txt");
         FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_ficheiro.txt");
         Base64InputStream decoder = new Base64InputStream(cis);
         //CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
-
-
-
-
+        encoder.flush();
         cmDecoding(decoder,cipherMen, outputStreamDecode);
 
+
+    }
+
+    private static void encMode(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, CertificateException {
+        String fileName = args[1]; //"src/S1/Ex6/Alice_1.cer"
+        FileInputStream in = new FileInputStream(args[1]);
+
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        Cipher cipherKey = Cipher.getInstance("RSA");
+
+        // Gera objeto para certificados X.509.
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        // Gera o certificado a partir do ficheiro.
+        X509Certificate certificate = (X509Certificate) cf.generateCertificate(in);
+
+
+        PublicKey publicKeyKe = certificate.getPublicKey();
+
+        SecretKey keyK = keyGen.generateKey();
+
+        // Associa a chave key a cifra
+        cipherMen.init(Cipher.ENCRYPT_MODE, keyK);
+
+        // Associa a chave publicKey a chaveK
+        cipherKey.init(Cipher.WRAP_MODE,publicKeyKe);
+
+        //File file = new File("src/S1/Ex6/"+fileName);
+        FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
+        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.txt");
+        //CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
+        Base64OutputStream encoder =  new Base64OutputStream(outputStream);
+
+        cmEnconding(encoder,cipherMen,fis);
+
+    }
+
+    private static void decMode(String[] args) {
 
     }
 
@@ -149,12 +180,11 @@ public class exercicio6 {
      * @param encoder
      * @param cipher
      * @param cipherStream
-     * @param file
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      * @throws IOException
      */
-    private static void cmEnconding(Base64OutputStream encoder, Cipher cipher, FileInputStream cipherStream, File file) throws IllegalBlockSizeException, BadPaddingException, IOException {
+    private static void cmEnconding(Base64OutputStream encoder, Cipher cipher, FileInputStream cipherStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
 
         byte[] buffer = new byte[64];
         int bytesRead;
@@ -210,6 +240,7 @@ public class exercicio6 {
 
 
         decoder.close();
+        cipherOutStream.flush();
         cipherOutStream.close();
     }
 
