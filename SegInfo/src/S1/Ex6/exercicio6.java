@@ -83,16 +83,18 @@ public class exercicio6 {
         File file = new File("src/S1/Ex6/"+fileName);
         FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
         FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.cif");
-        CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
+        //CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
         Base64OutputStream encoder =  new Base64OutputStream(outputStream);
 
 
         /*
         System.out.println("Message Bytes:");
-        prettyPrint(Base64.encodeBase64(fis.readAllBytes()));
+        prettyPrint(fis.readAllBytes());
         System.out.println("\n");
 
          */
+
+
         /*
         byte[] buffer = new byte[64];
         int nBytes;
@@ -100,7 +102,7 @@ public class exercicio6 {
             encoder.write(buffer, 0, nBytes);
 
          */
-        cmEnconding(outputStream, cipherMen,cipherStream,file);
+        cmEnconding(encoder, cipherMen,fis,file);
 
 
         /**
@@ -119,18 +121,16 @@ public class exercicio6 {
 
 
         FileInputStream cis = new FileInputStream("src/S1/Ex6/encrypted_ficheiro.cif");
-        FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_"+fileName);
+        FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_ficheiro.txt");
         Base64InputStream decoder = new Base64InputStream(cis);
-        CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
+        //CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
 
 
 
 
+        cmDecoding(decoder,cipherMen, outputStreamDecode);
 
-        cmDecoding(cis,cipherMen, cipherOutStream);
 
-        System.out.println("Message Bytes After Decoding");
-        //prettyPrint(decoder.readAllBytes());
     }
 
     /**
@@ -154,7 +154,7 @@ public class exercicio6 {
      * @throws BadPaddingException
      * @throws IOException
      */
-    private static void cmEnconding(FileOutputStream encoder, Cipher cipher, CipherInputStream cipherStream, File file) throws IllegalBlockSizeException, BadPaddingException, IOException {
+    private static void cmEnconding(Base64OutputStream encoder, Cipher cipher, FileInputStream cipherStream, File file) throws IllegalBlockSizeException, BadPaddingException, IOException {
 
         byte[] buffer = new byte[64];
         int bytesRead;
@@ -174,8 +174,6 @@ public class exercicio6 {
         }
 
 
-
-
         encoder.close();
         cipherStream.close();
     }
@@ -183,11 +181,12 @@ public class exercicio6 {
     /**
      * @param decoder
      * @param cipher
+     * @param cipherOutStream
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      * @throws IOException
      */
-    private static void cmDecoding(FileInputStream decoder, Cipher cipher, CipherOutputStream cipherOutStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
+    private static void cmDecoding(Base64InputStream decoder, Cipher cipher, FileOutputStream cipherOutStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
         byte[] buffer = new byte[64];
         int bytesRead;
 
@@ -206,6 +205,7 @@ public class exercicio6 {
             //cipherOutStream.write(outputBytes);
             cipherOutStream.write(outputBytes);
         }
+        //prettyPrint(decoder.readAllBytes());
 
 
 
