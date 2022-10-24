@@ -25,110 +25,59 @@ public class exercicio6 {
             System.out.println("     -dec  [Decodes a file, deciphering it's content]");
 
             String userResponse = sc.nextLine();
+            switch (userResponse) {
+                case "-enc" -> {
+                    String [] newArgs = new String[3];
+                    System.out.println("> Please Introduce A File To Cipher :");
+                    newArgs[1] = sc.nextLine();
+                    System.out.println("> Please Introduce A Certificate :");
+                    newArgs[2] = sc.nextLine();
+                    encMode(newArgs);
+                }
+                case "-dec" -> {
+                    String [] newArgs = new String[4];
+                    System.out.println("> Please Introduce A Ciphered Message File :");
+                    newArgs[1] = sc.nextLine();
+                    System.out.println("> Please Introduce A Ciphered Secret Key :");
+                    newArgs[2] = sc.nextLine();
+                    System.out.println("> Please Introduce A KeyStore Private Key :");
+                    newArgs[3] = sc.nextLine();
+                    decMode(newArgs);
+                }
+                default -> throw new IllegalArgumentException("Incorrect Mode, please introduce either -enc or -dec .");
+            }
+        }else {
+            String mode = args[0];
+            switch (mode) {
+                case "-enc" -> encMode(args);
+                case "-dec" -> decMode(args);
+                default -> throw new IllegalArgumentException("Incorrect Mode, please introduce either -enc or -dec .");
+            }
         }
-
-        String mode = args[0];
-        switch(mode){
-            case "-enc": decMode(args);
-            case "-dec": encMode(args);
-            default:
-                //throw new IllegalArgumentException("Incorrect Mode, please introduce either -enc or -dec .");
-                 break;
-        }
-
-
-        //System.out.println(fun + " " + fileIn + " " + cert);
-
-
-        // Assume que ficheiro cert.cer está na diretoria de execução.
-        FileInputStream in = new FileInputStream("src/S1/Ex6/Alice_1.cer");
-
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(
-                new FileInputStream("src/S1/Ex6/Alice_1.pfx"),
-                "changeit".toCharArray()
-        );
-
-
-        // Gera objeto para certificados X.509.
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        // Gera o certificado a partir do ficheiro.
-        X509Certificate certificate = (X509Certificate) cf.generateCertificate(in);
-        // Obtém a chave pública do certificado.
-        Enumeration<String> entries = ks.aliases();
-        String alias = entries.nextElement();
-        X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
-
-        PublicKey publicKeyKe = certificate.getPublicKey();
-        PrivateKey privKeyKd = (PrivateKey) ks.getKey(alias, "changeit".toCharArray());
-
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        //KeyPairGenerator keyPairGenGa = KeyPairGenerator.getInstance("RSA");
-
-
-
-
-        /**
-         * -------------------------------- Encryption Side ------------------------------------------
-         */
-
-
-        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        Cipher cipherKey = Cipher.getInstance("RSA");
-
-        SecretKey keyK = keyGen.generateKey();
-
-        // Associa a chave key a cifra
-        cipherMen.init(Cipher.ENCRYPT_MODE, keyK);
-
-        // Associa a chave publicKey a chaveK
-        cipherKey.init(Cipher.WRAP_MODE,publicKeyKe);
-
-        String fileName = "ficheiro.txt";
-        File file = new File("src/S1/Ex6/"+fileName);
-        FileInputStream fis = new FileInputStream("src/S1/Ex6/"+fileName);
-        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_ficheiro.txt");
-        //CipherInputStream cipherStream = new CipherInputStream(fis,cipherMen);
-        Base64OutputStream encoder =  new Base64OutputStream(outputStream);
-
-
-        /*
-        System.out.println("Message Bytes:");
-        prettyPrint(fis.readAllBytes());
-        System.out.println("\n");
-
-         */
-        cmEnconding(encoder, cipherMen,fis);
-
-
-        /**
-         * -------------------------------- Decryption Side ------------------------------------------
-         */
-
-        byte[] bytesKey = ck(keyK, cipherKey);
-
-        cipherKey.init(Cipher.UNWRAP_MODE,privKeyKd);
-
-        //Chave secreta é estraida, é assegurado que é igual à chave gerada
-        SecretKey secretKey = (SecretKey) cipherKey.unwrap(bytesKey,"AES",Cipher.SECRET_KEY);
-        assert secretKey == keyK : "Extracted Key doesn't match Generated Key.  keyK != SecretKey";
-
-        cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
-
-
-        FileInputStream cis = new FileInputStream("src/S1/Ex6/encrypted_ficheiro.txt");
-        FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_ficheiro.txt");
-        Base64InputStream decoder = new Base64InputStream(cis);
-        //CipherOutputStream cipherOutStream = new CipherOutputStream(outputStreamDecode, cipherMen);
-        encoder.flush();
-        cmDecoding(decoder,cipherMen, outputStreamDecode);
-
 
     }
 
+    /**
+    * ----------------------------------------------------------- Encoding Side --------------------------------------------------------------------
+    */
+
+    /**
+     * Encode Mode, receives the Original message and the public key certificate (.cer file) from the sender.
+     * Generates a Secret Key.
+     * Uses the Secret Key to Encrypt the original message into a ciphered File called "encrypted_ficheiro.txt"
+     * Retrieves the Public Key from the .cer file received, and uses it to wrap the Secret Key into a file named "encrypted_symmetric_key.txt".
+     *
+     * @param args
+     */
     private static void encMode(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, CertificateException {
-        String fileName = args[1]; //"src/S1/Ex6/Alice_1.cer"
-        FileInputStream in = new FileInputStream(args[1]);
+        // -enc [ficheiro para cifrar] [ficheiro com chave publica]
+        // -enc ficheiro.txt src/S1/Ex6/Alice_1.cer
+
+        String fileName = args[1]; //file to encode
+        String cert = args[2]; //"src/S1/Ex6/Alice_1.cer"
+        FileInputStream in = new FileInputStream(cert); //certificado
+
+
 
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
@@ -157,32 +106,13 @@ public class exercicio6 {
         Base64OutputStream encoder =  new Base64OutputStream(outputStream);
 
         cmEnconding(encoder,cipherMen,fis);
-
+        ck(keyK, cipherKey);
     }
 
-    private static void decMode(String[] args) {
-
-    }
-
-    /**
-     * @param keyK
-     * @param cipherKey
-     * @return
-     * @throws IllegalBlockSizeException
-     * @throws InvalidKeyException
-     */
-    private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException {
-        return cipherKey.wrap(keyK);
-    }
-
-
-    /**
+    /** Encodes and Ciphers the original message from the Sender to a ciphered File named "encrypted_[fileName].txt"
      * @param encoder
      * @param cipher
      * @param cipherStream
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws IOException
      */
     private static void cmEnconding(Base64OutputStream encoder, Cipher cipher, FileInputStream cipherStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
 
@@ -209,19 +139,86 @@ public class exercicio6 {
     }
 
     /**
+     * Wraps the Secret Key into an encrypted file named "encrypted_symmetric_key.txt"
+     * @param keyK
+     * @param cipherKey
+     * @return bytes, the wraped Secret Key Byte Array
+     */
+    private static byte[] ck(SecretKey keyK, Cipher cipherKey) throws IllegalBlockSizeException, InvalidKeyException, IOException {
+        byte [] bytes = cipherKey.wrap(keyK);
+        FileOutputStream outputStream = new FileOutputStream("src/S1/Ex6/encrypted_symmetric_key.txt");
+        //Base64OutputStream toFile = new Base64OutputStream(outputStream);
+        outputStream.write(bytes);
+        System.out.println();
+        System.out.println("Encrypted Key1:");
+        prettyPrint(bytes);
+        return bytes;
+    }
+
+    /**
+     * ----------------------------------------------------------- Decoding Side --------------------------------------------------------------------
+     */
+
+    /**
+     * Decode Mode, receives from args the Ciphered File, the Ciphered Symmetric Key File, and the Keystore Private Key from the Receiver.
+     * Retrieves the Private Key from the .pfx file received in args[3] and uses it to unwrap the Secret Key used in the Symmetric Message Cipher (K from Cm = E(K)(m)
+     * Once unwraped, the Secret Key is used to Decrypt the Ciphered File (Cm), the result is a generated "decrypted_[inputFileName].txt" with the original message
+     * from the Sender.
+     * @param args
+     */
+    private static void decMode(String[] args) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        // -dec [ficheiro cifrado] [ficheiro com chave simétrica cifrada] [keystore com a chave privada do dest.]
+        // -dec src/S1/Ex6/encrypted_ficheiro.txt src/S1/Ex6/encrypted_symmetric_key.txt src/S1/Ex6/Alice_1.pfx
+
+        Cipher cipherMen = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        Cipher cipherKey = Cipher.getInstance("RSA");
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        FileInputStream privKey = new FileInputStream(args[3]);
+        ks.load(
+                privKey,
+                "changeit".toCharArray()
+        );
+
+        Enumeration<String> entries = ks.aliases();
+        String alias = entries.nextElement();
+        X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
+        PublicKey publicKey = cert.getPublicKey();
+
+        PrivateKey privKeyKd = (PrivateKey) ks.getKey(alias, "changeit".toCharArray());
+
+        FileInputStream symmetricKey = new FileInputStream(args[2]); //src/S1/Ex6/encrypted_symmetric_key.txt
+        //Base64InputStream symmetricKey64 = new Base64InputStream(symmetricKey);
+
+        byte [] encryptedKey = symmetricKey.readAllBytes();
+        System.out.println("Encrypted Key2:");
+        prettyPrint(encryptedKey);
+
+        cipherKey.init(Cipher.UNWRAP_MODE,privKeyKd);
+
+        SecretKey secretKey = (SecretKey) cipherKey.unwrap(encryptedKey,"AES",Cipher.SECRET_KEY);
+
+        cipherMen.init(Cipher.DECRYPT_MODE,secretKey);
+
+
+        FileInputStream cis = new FileInputStream(args[1]); //"src/S1/Ex6/encrypted_ficheiro.txt"
+        FileOutputStream outputStreamDecode = new FileOutputStream("src/S1/Ex6/decrypted_ficheiro.txt");
+        Base64InputStream decoder = new Base64InputStream(cis);
+
+        cmDecoding(decoder,cipherMen, outputStreamDecode);
+    }
+
+    /**
+     * Decodes and decrypts from the encrypted file into a decrypted file. (m' = D(K)(Cm))
      * @param decoder
      * @param cipher
      * @param cipherOutStream
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws IOException
      */
     private static void cmDecoding(Base64InputStream decoder, Cipher cipher, FileOutputStream cipherOutStream) throws IllegalBlockSizeException, BadPaddingException, IOException {
         byte[] buffer = new byte[64];
         int bytesRead;
 
         while ((bytesRead = decoder.read(buffer)) != -1) {
-           byte[] output = cipher.update(buffer, 0, bytesRead);
+            byte[] output = cipher.update(buffer, 0, bytesRead);
 
             if (output != null) {
                 cipherOutStream.write(output);
@@ -232,12 +229,8 @@ public class exercicio6 {
 
 
         if (outputBytes != null) {
-            //cipherOutStream.write(outputBytes);
             cipherOutStream.write(outputBytes);
         }
-        //prettyPrint(decoder.readAllBytes());
-
-
 
         decoder.close();
         cipherOutStream.flush();
@@ -247,7 +240,7 @@ public class exercicio6 {
 
     /**
      *
-     * @param tag
+     * @param tag, Byte Array to be printed
      */
     private static void prettyPrint(byte[] tag) {
         for (byte b: tag) {
@@ -256,38 +249,5 @@ public class exercicio6 {
         System.out.println();
     }
 
-
-    /**
-     * /**
-     * Generates the key for the AES algorithm
-     *
-     * @return SecretKey object to encrypt file with
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     */
-    private static SecretKey generateKey() throws NoSuchAlgorithmException, IOException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-        KeyPair kp = kpg.generateKeyPair();
-        Key pub = kp.getPublic();
-        Key pvt = kp.getPrivate();
-
-        String outFile = null;
-        FileOutputStream out = new FileOutputStream(outFile + ".key");
-        out.write(pvt.getEncoded());
-        out.close();
-
-        out = new FileOutputStream(outFile + ".pub");
-        out.write(pvt.getEncoded());
-        out.close();
-
-        System.err.println("Private key format: " + pvt.getFormat());
-        // prints "Private key format: PKCS#8" on my machine
-
-        System.err.println("Public key format: " + pub.getFormat());
-        // prints "Public key format: X.509" on my machine
-
-        return (SecretKey) pvt;
-    }
 }
 
