@@ -1,0 +1,18 @@
+1.
+
+a)
+    A autenticidade das mensagens no Record Protocol é garantida através de um MAC
+    (Message Authentication Code), aplicado a mensagens enviadas, e usando o MAC para
+    verificar as mensagens recebidas.
+
+b)
+    Apesar de no protocolo Handshake do TLS ser assumido que as mensagens trocadas neste periodo de tempo
+    entre cliente e servidor não têm confidencialidade ou integridade, o HMAC usado para gerar marcas MAC em todas
+    as mensagens trocadas entre estes, tanto uma marca para o cliente como outra marca par o servidor,
+     previne que qualquer entidade exterior modifique ou manipule a mensagem, pois qualquer modificação a esta resultaria num erro
+     de verificação da marca, sendo as duas comparadas a cada mensagem. Logo o HMAC protege as mensagens trocadas
+     de sofrerem alteração ou "hijacking".
+
+c)
+
+

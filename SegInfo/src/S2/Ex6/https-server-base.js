@@ -24,7 +24,7 @@ app.get("/", function (req, res) {
 const options = {
     key: fs.readFileSync('secure-server.pem'),
     cert: fs.readFileSync('secure-serverCer.pem'),
-    ca: [fs.readFileSync('CA1-Cer.pem'), fs.readFileSync('CA1-intCer.pem'), fs.readFileSync('CA2-Cer.pem'), fs.readFileSync('CA2-intCer.pem')],
+    ca: [fs.readFileSync('CA2-Cer.pem'), fs.readFileSync('CA2-intCer.pem')],
     requestCert: true,
     rejectUnauthorized: true
 };
