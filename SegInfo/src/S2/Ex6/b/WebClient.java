@@ -1,4 +1,4 @@
-package S2.Ex6;
+package S2.Ex6.b;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +15,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import S2.Ex6.utils.Utils;
-import S2.Ex6.utils.SecureRandomAlgorithm;
 
 
 public class WebClient {
@@ -25,25 +23,29 @@ public class WebClient {
     private static final String PFX = "Alice_2.pfx";
     private static final String PFX_PASSWORD = "changeit";
     private static final char[] PFX_PASSWORD_BYTE_ARRAY = PFX_PASSWORD.toCharArray();
-    private static final String SERVER_CERTIFICATE = "secure-server.cer";
-    private static final String SECURE_RANDOM_INSTANCE = SecureRandomAlgorithm.SHA1PRNG.toString();
+    private static final String SERVER_CERTIFICATE = "S2/Ex6/a/secure-server.cer";
+    private static final String SECURE_RANDOM_INSTANCE = "SHA1PRNG";
     private static final String CERTIFICATE_FACTORY_INSTANCE = "X.509";
     private static final String KEYSTORE_TYPE = KeyStore.getDefaultType();
     private static final String TRUST_MANAGER_FACTORY_ALGORITHM = TrustManagerFactory.getDefaultAlgorithm();
     private static final String KEY_MANAGER_FACTORY_ALGORITHM = KeyManagerFactory.getDefaultAlgorithm();
     private static final String SSL_ALGORITHM = "TLS";
-    private static final String CERTIFICATE_ENTRY_NAME = "secureServerCert";
+    private static final String CERTIFICATE_ENTRY_NAME = "serverCertification";
+
+    public static InputStream readResourceFile(String path) {
+        return ClassLoader.getSystemResourceAsStream(path);
+    }
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
 
         final CertificateFactory certificateFactory = CertificateFactory.getInstance(CERTIFICATE_FACTORY_INSTANCE);
 
-        try(final InputStream secureServerCertInputStream = Utils.readResourceFile(SERVER_CERTIFICATE)) {
+        try(final InputStream secureServerCertInputStream = readResourceFile(SERVER_CERTIFICATE)) {
 
             final Certificate secureServerCert = certificateFactory.generateCertificate(secureServerCertInputStream);
-
             final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-            keyStore.load(Utils.readResourceFile(PFX), PFX_PASSWORD_BYTE_ARRAY);
+
+            keyStore.load(readResourceFile(PFX), PFX_PASSWORD_BYTE_ARRAY);
             keyStore.setCertificateEntry(CERTIFICATE_ENTRY_NAME, secureServerCert);
 
             final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TRUST_MANAGER_FACTORY_ALGORITHM);
