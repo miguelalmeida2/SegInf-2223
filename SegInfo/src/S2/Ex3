@@ -1,0 +1,12 @@
+
+a) Foi pedido, neste exercício, que fosse explicado como seria possível que um atacante podesse
+passarsse por outro utilizador e ter conhecimento do identificador do mesmo. 
+Visto que a construção da cookie foi descoberta, o atacante poderá tentar criar uma cookie sabendo a sua construção.
+Logo, poderá tentar ligar-se à aplicação web com o identificador do utilizador 
+esperando então que a aplicação crie uma cookie baseada nesse identificador.
+
+
+b) A alínea em questão perguntava o que poderia ser feito para mitigar ou até evitar o ataque anterior. 
+Se também fosse guardada nessa cookie os ID's de sessão gerados pelo servidor, ou seja o
+ID gerado aquando do log in, sempre que houvesse um novo acesso à página seria verificado a existência 
+de um SID válido, se fosse esse, seria então substituído por um novo.
