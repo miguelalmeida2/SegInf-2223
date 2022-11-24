@@ -14,17 +14,5 @@ b)
      de sofrerem alteração ou "hijacking".
 
 c)
-    A "perfect forward security" é uma propriedade de segurança que garante que qualquer atacante que tenha descoberto a chave privada do
-    servidor num certo momento, não consiga decifrar mensagens transmitidas no passado usando essa mesma chave privada.
-    Na versão do TLS onde a pre-master secret key é estabelecida usando a chave privada do cliente, e a chave pública do servidor,
-    sem proteção adicional, qualquer mensagem enviada está vunerável a ser decifrada por uma entidade atacante que
-    por sua vez possa ter gravado uma série de mensagens, e a um certo momento descoberto a chave privada do servidor, usada para decifrar
-    a mensagem do cliente. E como neste caso as mensagens não são protegidas por outro dado adicional, o atacante pode neste caso proceder
-    a descobrir as chaves de sessão e consecutivamente decifrar as mensagens gravadas previamente por este, transmitidas no passado, pois tem todos os
-    dados que precisa para o fazer.
-    Para garantir uma "perfect foward security" o TLS em versões mais recentes, inclui a geração de uma Ephemeral Diffie-Hellman key pela
-    parte do servidor, sendo uma chave de uso único, que é gerada aleatóriamente e individualmente por sessão, e são computacionalmente impossiveis
-    de decifrar por uma futura entidade atacante.
-
 
 
