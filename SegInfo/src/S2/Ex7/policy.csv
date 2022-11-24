@@ -1,0 +1,9 @@
+p, free, /list/* , read
+p, premium, /list/* , *
+p, admin, /*, *
+
+g, filipefreitas@gmail.com, premium
+g, jorgepiao@gmail.com, free
+g, nandinhadasstringis@gmail.com, premium
+g, premium, free
+g, admin, premium
