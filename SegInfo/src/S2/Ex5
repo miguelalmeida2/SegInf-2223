@@ -1,0 +1,13 @@
+
+a)
+
+Role Based Access Control é um sistema/modelo para controlo de acesso onde existem utilizadores, 
+cargos e permissões.
+Para um dado utilizador aceder a um dado recurso além de uma dada role esta terá de ter permissões 
+de acesso ao dado recurso, podendo este utilizador ter várias roles e assim múltiplas permissões obtendo
+acesso a mais recursos/funcionalidades.
+Assim, dado este modelo é possível garantir isolamento no acesso a recursos e definir um privilégio mínimo
+e um conjunto mínimo de permissões para realizar um conjunto de operações.
+
+
+b)
