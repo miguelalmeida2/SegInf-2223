@@ -11,3 +11,10 @@ e um conjunto mínimo de permissões para realizar um conjunto de operações.
 
 
 b)
+Não tem permissão, pois
+
+u2 tem r2
+r2 tem pa e pb
+como r2 nao tem pc 
+e W necessita de pc e pb
+logo u2 nao tem acesso a W
