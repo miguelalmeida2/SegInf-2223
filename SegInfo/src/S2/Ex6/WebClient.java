@@ -1,7 +1,6 @@
 package S2.Ex6;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -22,10 +21,10 @@ import S2.Ex6.utils.SecureRandomAlgorithm;
 public class WebClient {
     private static final String URL = "www.secure-server.edu";
     private static final int PORT = 4433;
-    private static final String PFX = "Alice_2.pfx";
+    private static final String PFX = "./S2/Ex6/Alice_2.pfx";
     private static final String PFX_PASSWORD = "changeit";
     private static final char[] PFX_PASSWORD_BYTE_ARRAY = PFX_PASSWORD.toCharArray();
-    private static final String SERVER_CERTIFICATE = "./S2/Ex6/secure-server.pem";
+    private static final String SERVER_CERTIFICATE = "./S2/Ex6/secure-server.cer";
     private static final String SECURE_RANDOM_INSTANCE = SecureRandomAlgorithm.SHA1PRNG.toString();
     private static final String CERTIFICATE_FACTORY_INSTANCE = "X.509";
     private static final String KEYSTORE_TYPE = KeyStore.getDefaultType();
@@ -63,7 +62,12 @@ public class WebClient {
 
             final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(URL, PORT);
 
+
+            sslSocket.startHandshake();
+
+
             final SSLSession sslSession = sslSocket.getSession();
+
 
             final Certificate firstPeerCertificate = sslSession.getPeerCertificates()[0];
 
@@ -72,6 +76,35 @@ public class WebClient {
             final String cipherSuite = sslSession.getCipherSuite();
 
             System.out.println("Suite: " + cipherSuite);
+
+            PrintWriter out = new PrintWriter(
+                    new BufferedWriter(
+                            new OutputStreamWriter(
+                                    sslSocket.getOutputStream())));
+            out.println("GET " + "www.secure-server.edu" + " HTTP/1.1");
+            out.println();
+            out.flush();
+
+
+            if (out.checkError())
+                System.out.println(
+                        "SSLSocketClient: java.io.PrintWriter error");
+
+
+            String inputLine;
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            sslSocket.getInputStream()));
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        }catch (Exception e ){
+            e.printStackTrace();
         }
     }
 }
