@@ -25,7 +25,7 @@ public class WebClient {
     private static final String PFX = "Alice_2.pfx";
     private static final String PFX_PASSWORD = "changeit";
     private static final char[] PFX_PASSWORD_BYTE_ARRAY = PFX_PASSWORD.toCharArray();
-    private static final String SERVER_CERTIFICATE = "secure-server.cer";
+    private static final String SERVER_CERTIFICATE = "./S2/Ex6/secure-server.pem";
     private static final String SECURE_RANDOM_INSTANCE = SecureRandomAlgorithm.SHA1PRNG.toString();
     private static final String CERTIFICATE_FACTORY_INSTANCE = "X.509";
     private static final String KEYSTORE_TYPE = KeyStore.getDefaultType();
