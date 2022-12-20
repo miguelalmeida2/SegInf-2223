@@ -1,0 +1,4 @@
+Este erro facilita um ataque de dicionário através da interface de autenticação, porque atacante pode usar a informação exposta 
+para criar um dicionário de hashes pré-calculados derivado de senhas comuns, e posteriormente usar esse dicionário para verificar se 
+os hashes correspondem a uma senha conhecida.
+No entanto existe uma segurança superior ao limitar o número de tentativas que o atacante pode usar as senhas do seu dicionário.

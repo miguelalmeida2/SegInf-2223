@@ -1,0 +1,19 @@
+Considere a norma OAuth 2.0 e OpenID Connect no fluxo authorization code grant:
+(a) O valor indicado no scope é determinado pela aplicação cliente ou pelo dono de recursos?
+
+O valor do scope é determinado pela aplicação cliente, este especifica quais informações e recursos o cliente quer acessar no dono de recursos.
+
+(b) Em que situações o cliente e o servidor de autorização comunicam indiretamente através do browser do dono de recursos?
+
+No fluxo authorization code grant, o cliente e o servidor de autorização comunicam indiretamente através do browser do dono de recursos nas seguintes situações:
+    - O dono de recursos é redirecionado para o servidor de autorização para autorizar o acesso do cliente aos seus recursos.
+    - O servidor de autorização redireciona o dono de recursos de volta para o cliente, passando o código de 
+      autorização (Access token, Refresh token, ID token) como parâmetro na URL de redirecionamento.
+
+(c) Qual a diferença entre o access_token e o id_token?
+
+O access_token é um token que é usado pelo cliente para acessar recursos protegidos no dono de recursos.
+Este é emitido pelo servidor de autorização e permite autorizar o cliente a realizar ações no servidor de recursos.
+
+O id_token é um JSON Web Token (JWT) que contém um conjunto de asserções sobre um utilizador autenticado.
+Este é emitido pelo servidor de autorização e é usado para autenticar e fornecer informações do utilizador do lado do cliente.
