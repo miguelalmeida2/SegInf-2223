@@ -1,18 +1,13 @@
 1.
 
 a)
-    A autenticidade das mensagens no Record Protocol é garantida através de um MAC
-    (Message Authentication Code), aplicado a mensagens enviadas, e usando o MAC para
-    verificar as mensagens recebidas.
+    Para garantir a autenticidade das mensagens no Record Protocol, são usados criptografia de chave pública e assinatura digital. Quando um cliente se conecta a um servidor usando o Record Protocol, o servidor envia ao cliente o seu certificado digital, que inclui a sua chave pública. O cliente verifica a autenticidade do certificado usando a cadeia de certificação, que é uma cadeia de certificados que vão desde o certificado do servidor até um certificado raiz de confiança. Por sua vez, para garantir a autenticidade das mensagens por parte do cliente, é usada uma assinatura digital MAC, como previamente mencionado, para garantir a autenticidade da mensagem recebida pelo servidor.
+Assim, tanto o servidor como o cliente, garantem autenticidade nas suas mensagens, o servidor usa o seu certificado digital que contém a sua chave pública, e o cliente usa a sua assinatura digital MAC assinando todas as mensagens que envia.
 
 b)
-    Apesar de no protocolo Handshake do TLS ser assumido que as mensagens trocadas neste periodo de tempo
-    entre cliente e servidor não têm confidencialidade ou integridade, o HMAC usado para gerar marcas MAC em todas
-    as mensagens trocadas entre estes, tanto uma marca para o cliente como outra marca par o servidor,
-     previne que qualquer entidade exterior modifique ou manipule a mensagem, pois qualquer modificação a esta resultaria num erro
-     de verificação da marca, sendo as duas comparadas a cada mensagem. Logo o HMAC protege as mensagens trocadas
-     de sofrerem alteração ou "hijacking".
-
+    As mensagens podem ser interceptadas e alteradas por um atacante pois o sub-protocolo Handshake não garante confidencialidade nem integridade. No entanto, o Handshake é projetado para ser resistente à inserção ou adulteração maliciosa de mensagens, mesmo em um canal inseguro.
+Devido às assinaturas digitais e consecutivamente a sua verificação de integridade, é exercida a garantia que a mensagem não foi alterada. O TLS usa adicionalmente MACs (Message  Authenticity Code), cálculos criptográficos baseados nas mensagens e nas chaves de criptografia acordadas durante o Handshake. Se uma mensagem for alterada durante a transmissão, o MAC não corresponderá e o destinatário da mensagem saberá que a mensagem foi alterada.
 c)
 
-
+  O estabelecimento de chaves no TLS usando chaves públicas e privadas não garante a PFS (Perfect Forward Secrecy) porque essas chaves são utilizadas para criptografar a pre-master secret, que é consecutivamente usado para gerar as chaves de sessão que por sua vez são usadas para criptografar as mensagens trocadas durante a sessão TLS. Se uma chave privada for comprometida no futuro a um atacante, essa chave poderá ser usada para descriptografar a pre-master secret e, em seguida, as chaves de sessão, o que permitiria aos atacantes decriptar as mensagens trocadas durante a sessão TLS.
+  Para garantir a PFS, é necessário usar técnicas adicionais, como o uso de chaves ephemeral, que são geradas aleatoriamente para cada sessão TLS e descartadas quando a sessão é encerrada. Isso garante que, mesmo se uma chave for comprometida no futuro, não será possível usá-la para decriptar mensagens trocadas em sessões anteriores.
