@@ -26,8 +26,8 @@ const options = {
     key: fs.readFileSync('secure-server.pem'),
     cert: fs.readFileSync('secure-serverCer.pem'),
     ca: [fs.readFileSync('CA2-Cer.pem'), fs.readFileSync('CA2-intCer.pem')],
-    requestCert: true,
-    rejectUnauthorized: false
+    requestCert: false,
+    rejectUnauthorized: true
 };
 
 // Create HTTPS server

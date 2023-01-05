@@ -32,6 +32,9 @@ public class WebClient {
     private static final String KEY_MANAGER_FACTORY_ALGORITHM = KeyManagerFactory.getDefaultAlgorithm();
     private static final String SSL_ALGORITHM = "TLS";
     private static final String CERTIFICATE_ENTRY_NAME = "secureServerCert";
+    //adicionar o CA-1 Root.
+
+    //criar outro TrustManager com os certificados conacentenados CA1 e CA1 Int
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
 
@@ -45,6 +48,8 @@ public class WebClient {
             keyStore.load(Utils.readResourceFile(PFX), PFX_PASSWORD_BYTE_ARRAY);
             keyStore.setCertificateEntry(CERTIFICATE_ENTRY_NAME, secureServerCert);
 
+            //CA1-Int converter para PEM e concatener com o PEM do secure-server
+            // Colocar JKS no TrustManager, meter os 2
             final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TRUST_MANAGER_FACTORY_ALGORITHM);
             trustManagerFactory.init(keyStore);
             final TrustManager[] trustManagerArray = trustManagerFactory.getTrustManagers();
