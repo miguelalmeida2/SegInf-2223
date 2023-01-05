@@ -49,14 +49,23 @@ public class WebClient {
             trustManagerFactory.init(keyStore);
             final TrustManager[] trustManagerArray = trustManagerFactory.getTrustManagers();
 
+            //----------------------------------------------------------------
+            //Comentar as linhas abaixo para não usar autenticação de cliente
+            //O KeyManager é responsável por gerenciar as chaves privadas usadas pelo cliente durante o processo de autenticação.
+            /*
             final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KEY_MANAGER_FACTORY_ALGORITHM);
             keyManagerFactory.init(keyStore, PFX_PASSWORD_BYTE_ARRAY);
             final KeyManager[] keyManagerArray = keyManagerFactory.getKeyManagers();
+            //----------------------------------------------------------------
+
+             */
 
             final SecureRandom secureRandom = SecureRandom.getInstance(SECURE_RANDOM_INSTANCE);
 
             final SSLContext sslContext = SSLContext.getInstance(SSL_ALGORITHM);
-            sslContext.init(keyManagerArray, trustManagerArray, secureRandom);
+
+            //passar null o primeiro argumento para não usar autenticação de cliente
+            sslContext.init(null, trustManagerArray, secureRandom);
 
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
